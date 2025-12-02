@@ -125,10 +125,16 @@ resource "aws_instance" "app_host" {
     usermod -a -G docker ec2-user
     
     # Install Docker Compose v2
-    DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)
-    curl -L "https://github.com/docker/compose/releases/download/$${DOCKER_COMPOSE_VERSION}/docker-compose-$$(uname -s)-$$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
+    DOCKER_CONFIG=/usr/local/lib/docker
+    mkdir -p $${DOCKER_CONFIG}/cli-plugins
+    
+    # Download the latest version for Linux x86_64 (Standard for Amazon Linux 2)
+    curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o $${DOCKER_CONFIG}/cli-plugins/docker-compose
+    chmod +x $${DOCKER_CONFIG}/cli-plugins/docker-compose
  
+    # Switchig to su
+    sudo su -
+
     # Switch to the correct user directory
     cd /home/ec2-user
     

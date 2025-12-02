@@ -1,0 +1,30 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  # --- BACKEND SERVICE (Node.js/Express) ---
+  backend:
+    build:
+      context: ./server
+    container_name: personal-book-backend
+    # Load all environment variables from the .env file
+    env_file:
+      - .env
+    ports:
+      # Expose backend port 5000 on the host (for testing/debugging)
+      - "5000:5000"
+    restart: always
+
+  # --- FRONTEND SERVICE (React/Nginx Proxy) ---
+  frontend:
+    build:
+      context: ./client
+    container_name: personal-book-frontend
+    ports:
+      # Expose frontend port 80 to host port 3000 (access via browser on http://localhost:3000)
+      - "3000:80"
+    # Ensure backend starts before frontend tries to connect
+    depends_on:
+      - backend
+    restart: always

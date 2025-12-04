@@ -44,7 +44,10 @@ resource "aws_iam_role_policy" "ecs_execution_policy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = aws_cloudwatch_log_group.backend_log_group.arn
+        Resource = [
+          "${aws_cloudwatch_log_group.backend_log_group.arn}:*", 
+          "${aws_cloudwatch_log_group.frontend_log_group.arn}:*" 
+        ]
       },
       { # Required for accessing Secrets Manager or Parameter Store
         Effect   = "Allow"

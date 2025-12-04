@@ -1,0 +1,107 @@
+name: Deploy to AWS ECS Fargate (Prod)
+
+on:
+  push:
+    branches:
+      - main # Trigger on push to the main branch
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+
+env:
+  # Base Configuration
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECS_CLUSTER: ${{ secrets.ECS_CLUSTER_NAME }}
+
+  # Backend Settings
+  BACKEND_ECR_REPOSITORY: ${{ secrets.ECR_BACKEND_REPOSITORY }}
+  BACKEND_TASK_FAMILY: PersonalBook-backend # Must match the family in terraform/ecs.tf
+  BACKEND_SERVICE_NAME: PersonalBook-backend-service # Must match the service name in terraform/ecs_service.tf
+
+  # Frontend Settings
+  FRONTEND_ECR_REPOSITORY: ${{ secrets.ECR_FRONTEND_REPOSITORY }}
+  FRONTEND_TASK_FAMILY: PersonalBook-frontend # Must match the family in terraform/frontend_task_definition.tf
+  FRONTEND_SERVICE_NAME: PersonalBook-frontend-service # Must match the service name in terraform/ecs_service.tf
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # --- 1. AWS Authentication ---
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    # ------------------------------------------------------------------
+    # --- 2. BACKEND BUILD, PUSH, AND DEPLOY ---
+    # ------------------------------------------------------------------
+
+    - name: Build, Tag, and Push Backend Image
+      id: push_backend
+      env:
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build the image using the Dockerfile in the 'server' directory
+        docker build -t $BACKEND_ECR_REPOSITORY:latest ./server
+        docker push $BACKEND_ECR_REPOSITORY:latest
+
+    - name: Download Backend Task Definition File
+      # We need a local copy of the task definition JSON to fill the image tag
+      run: aws ecs describe-task-definition --task-definition $BACKEND_TASK_FAMILY --query taskDefinition > task-definition-backend.json
+
+    - name: Render Backend Task Definition
+      id: render_backend
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition-backend.json
+        container-name: backend # Name of the container inside the Task Definition
+        image: ${{ env.BACKEND_ECR_REPOSITORY }}:latest
+
+    - name: Deploy New Backend Task Definition to ECS Service
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.render_backend.outputs.task-definition }}
+        service: ${{ env.BACKEND_SERVICE_NAME }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
+
+    # ------------------------------------------------------------------
+    # --- 3. FRONTEND BUILD, PUSH, AND DEPLOY ---
+    # ------------------------------------------------------------------
+
+    - name: Build, Tag, and Push Frontend Image
+      id: push_frontend
+      env:
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build the image using the Dockerfile in the 'client' directory
+        docker build -t $FRONTEND_ECR_REPOSITORY:latest ./client
+        docker push $FRONTEND_ECR_REPOSITORY:latest
+
+    - name: Download Frontend Task Definition File
+      run: aws ecs describe-task-definition --task-definition $FRONTEND_TASK_FAMILY --query taskDefinition > task-definition-frontend.json
+
+    - name: Render Frontend Task Definition
+      id: render_frontend
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition-frontend.json
+        container-name: frontend # Name of the container inside the Task Definition
+        image: ${{ env.FRONTEND_ECR_REPOSITORY }}:latest
+
+    - name: Deploy New Frontend Task Definition to ECS Service
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.render_frontend.outputs.task-definition }}
+        service: ${{ env.FRONTEND_SERVICE_NAME }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true

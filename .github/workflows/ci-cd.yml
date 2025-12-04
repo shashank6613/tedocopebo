@@ -11,6 +11,9 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   ECS_CLUSTER: ${{ secrets.ECS_CLUSTER_NAME }}
 
+  BACKEND_REPO_NAME: personalbook-backend
+  FRONTEND_REPO_NAME: personalbook-frontend
+
   # Backend Settings
   BACKEND_ECR_URL: ${{ secrets.BACKEND_ECR_URL }}
   BACKEND_TASK_FAMILY: PersonalBook-backend # Must match the family in terraform/ecs.tf
@@ -53,7 +56,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ lower(env.BACKEND_TASK_FAMILY) }}:latest
+        IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.BACKEND_REPO_NAME }}:latest
 
         # Build the image using the full URI
         docker build -t $IMAGE_URI ./server
@@ -91,7 +94,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ lower(env.FRONTEND_TASK_FAMILY) }}:latest
+        IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.FRONTEND_REPO_NAME }}:latest
 
         # Build the image using the full URI
         docker build -t $IMAGE_URI ./client

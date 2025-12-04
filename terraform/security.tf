@@ -53,7 +53,10 @@ resource "aws_iam_role_policy" "ecs_execution_policy" {
           "ssm:GetParameters" # If you use Parameter Store too
         ]
         # 🚨 Resource must be updated to the ARN of your actual secret!
-        Resource = "*" 
+        Resource = [
+          "arn:aws:secretsmanager:us-west-2:799344209838:secret:mongo-atlas-uri-prod-ltRwhe",
+          "arn:aws:secretsmanager:us-west-2:799344209838:secret:app-jwt-secret-prod-e8JWoO"
+        ]
       }
     ]
   })

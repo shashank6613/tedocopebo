@@ -39,12 +39,12 @@ resource "aws_ecs_task_definition" "backend_task" {
         {
           name      = "MONGO_URI"
           # ⚠️ REPLACE 'SECRET_ARN_HERE' with the ARN of your MongoDB Atlas secret in Secrets Manager
-          valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:SECRET_ARN_HERE" 
+          valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:mongo-atlas-uri-prod-ltRwhe" 
         },
         {
           name      = "JWT_SECRET"
           # ⚠️ REPLACE 'JWT_SECRET_ARN_HERE' with the ARN of your JWT secret
-          valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:JWT_SECRET_ARN_HERE" 
+          valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:app-jwt-secret-prod-e8JWoO" 
         }
       ]
     }

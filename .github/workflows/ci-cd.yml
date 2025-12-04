@@ -12,12 +12,12 @@ env:
   ECS_CLUSTER: ${{ secrets.ECS_CLUSTER_NAME }}
 
   # Backend Settings
-  BACKEND_ECR_REPOSITORY: ${{ secrets.ECR_BACKEND_URL }}
+  BACKEND_ECR_REPOSITORY: ${{ secrets.BACKEND_ECR_URL }}
   BACKEND_TASK_FAMILY: PersonalBook-backend # Must match the family in terraform/ecs.tf
   BACKEND_SERVICE_NAME: PersonalBook-backend-service # Must match the service name in terraform/ecs_service.tf
 
   # Frontend Settings
-  FRONTEND_ECR_REPOSITORY: ${{ secrets.ECR_FRONTEND_URL }}
+  FRONTEND_ECR_REPOSITORY: ${{ secrets.FRONTEND_ECR_URL }}
   FRONTEND_TASK_FAMILY: PersonalBook-frontend # Must match the family in terraform/frontend_task_definition.tf
   FRONTEND_SERVICE_NAME: PersonalBook-frontend-service # Must match the service name in terraform/ecs_service.tf
 

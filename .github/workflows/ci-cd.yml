@@ -12,12 +12,12 @@ env:
   ECS_CLUSTER: ${{ secrets.ECS_CLUSTER_NAME }}
 
   # Backend Settings
-  BACKEND_ECR_REPOSITORY: ${{ secrets.ECR_BACKEND_REPOSITORY }}
+  BACKEND_ECR_REPOSITORY: ${{ secrets.ECR_BACKEND_URL }}
   BACKEND_TASK_FAMILY: PersonalBook-backend # Must match the family in terraform/ecs.tf
   BACKEND_SERVICE_NAME: PersonalBook-backend-service # Must match the service name in terraform/ecs_service.tf
 
   # Frontend Settings
-  FRONTEND_ECR_REPOSITORY: ${{ secrets.ECR_FRONTEND_REPOSITORY }}
+  FRONTEND_ECR_REPOSITORY: ${{ secrets.ECR_FRONTEND_URL }}
   FRONTEND_TASK_FAMILY: PersonalBook-frontend # Must match the family in terraform/frontend_task_definition.tf
   FRONTEND_SERVICE_NAME: PersonalBook-frontend-service # Must match the service name in terraform/ecs_service.tf
 
@@ -51,8 +51,8 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         # Build the image using the Dockerfile in the 'server' directory
-        docker build -t $BACKEND_ECR_REPOSITORY:latest ./server
-        docker push $BACKEND_ECR_REPOSITORY:latest
+        docker build -t $BACKEND_ECR_URL:latest ./server
+        docker push $BACKEND_ECR_URL:latest
 
     - name: Download Backend Task Definition File
       # We need a local copy of the task definition JSON to fill the image tag
@@ -64,7 +64,7 @@ jobs:
       with:
         task-definition: task-definition-backend.json
         container-name: backend # Name of the container inside the Task Definition
-        image: ${{ env.BACKEND_ECR_REPOSITORY }}:latest
+        image: ${{ env.BACKEND_ECR_URL }}:latest
 
     - name: Deploy New Backend Task Definition to ECS Service
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -84,8 +84,8 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         # Build the image using the Dockerfile in the 'client' directory
-        docker build -t $FRONTEND_ECR_REPOSITORY:latest ./client
-        docker push $FRONTEND_ECR_REPOSITORY:latest
+        docker build -t $FRONTEND_ECR_URL:latest ./client
+        docker push $FRONTEND_ECR_URL:latest
 
     - name: Download Frontend Task Definition File
       run: aws ecs describe-task-definition --task-definition $FRONTEND_TASK_FAMILY --query taskDefinition > task-definition-frontend.json
@@ -96,7 +96,7 @@ jobs:
       with:
         task-definition: task-definition-frontend.json
         container-name: frontend # Name of the container inside the Task Definition
-        image: ${{ env.FRONTEND_ECR_REPOSITORY }}:latest
+        image: ${{ env.FRONTEND_ECR_URL }}:latest
 
     - name: Deploy New Frontend Task Definition to ECS Service
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1

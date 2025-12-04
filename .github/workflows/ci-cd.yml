@@ -51,10 +51,15 @@ jobs:
       id: push_backend
       env:
         IMAGE_TAG: ${{ github.sha }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        # Build the image using the Dockerfile in the 'server' directory
-        docker build -t $BACKEND_ECR_URL:latest ./server
-        docker push $BACKEND_ECR_URL:latest
+        IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.BACKEND_TASK_FAMILY }}:latest
+
+        # Build the image using the full URI
+        docker build -t $IMAGE_URI ./server
+
+        # Push the image using the full URI
+        docker push $IMAGE_URI
 
     - name: Download Backend Task Definition File
       # We need a local copy of the task definition JSON to fill the image tag
@@ -84,10 +89,15 @@ jobs:
       id: push_frontend
       env:
         IMAGE_TAG: ${{ github.sha }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        # Build the image using the Dockerfile in the 'client' directory
-        docker build -t $FRONTEND_ECR_URL:latest ./client
-        docker push $FRONTEND_ECR_URL:latest
+        IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.FRONTEND_TASK_FAMILY }}:latest
+
+        # Build the image using the full URI
+        docker build -t $IMAGE_URI ./client
+
+        # Push the image using the full URI
+        docker push $IMAGE_URI
 
     - name: Download Frontend Task Definition File
       run: aws ecs describe-task-definition --task-definition $FRONTEND_TASK_FAMILY --query taskDefinition > task-definition-frontend.json

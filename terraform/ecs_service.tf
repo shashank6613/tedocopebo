@@ -5,6 +5,7 @@ resource "aws_ecs_service" "frontend_service" {
   task_definition = aws_ecs_task_definition.frontend_task.arn # Frontend task definition (defined below)
   desired_count   = 2 # Run 2 tasks for High Availability (HA)
   launch_type     = "FARGATE"
+  force_new_deployment = true
   
   network_configuration {
     security_groups = [aws_security_group.backend_sg.id] # Use the backend SG for now (same network egress needs)
@@ -31,6 +32,7 @@ resource "aws_ecs_service" "backend_service" {
   task_definition = aws_ecs_task_definition.backend_task.arn
   desired_count   = 2 # Run 2 tasks for HA
   launch_type     = "FARGATE"
+  force_new_deployment = true
   
   network_configuration {
     security_groups = [aws_security_group.backend_sg.id]

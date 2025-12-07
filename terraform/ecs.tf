@@ -50,7 +50,7 @@ resource "aws_ecs_task_definition" "backend_task" {
        "environment": [
            {
                "name": "MONGO_URI",
-               "value": "mongodb://shashank92:YOUR_PASSWORD@ac-9ioqwws-shard-00-02.z0dwony.mongodb.net:27017,ac-9ioqwws-shard-00-01.z0dwony.mongodb.net:27017,ac-9ioqwws-shard-00-00.z0dwony.mongodb.net:27017/?replicaSet=atlas-5v5bs4-shard-0&authSource=admin&retryWrites=true&w=majority"
+               "value": "mongodb://shashank92:vIHDmuL7YjeqF9d6@ac-9ioqwws-shard-00-02.z0dwony.mongodb.net:27017,ac-9ioqwws-shard-00-01.z0dwony.mongodb.net:27017,ac-9ioqwws-shard-00-00.z0dwony.mongodb.net:27017/?replicaSet=atlas-5v5bs4-shard-0&authSource=admin&retryWrites=true&w=majority"
            },
            {
                "name": "JWT_SECRET",

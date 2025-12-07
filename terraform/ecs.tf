@@ -35,18 +35,28 @@ resource "aws_ecs_task_definition" "backend_task" {
       }
       
       # 🚨 HOW TO PULL SECRETS FROM AWS SECRETS MANAGER 🚨
-      secrets = [
-        {
-          name      = "MONGO_URI"
+     # secrets = [
+       # {
+         # name      = "MONGO_URI"
           # ⚠️ REPLACE 'SECRET_ARN_HERE' with the ARN of your MongoDB Atlas secret in Secrets Manager
-          valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:mongo-atlas-uri-prod-ltRwhe:MONGO_URI::" 
-        },
-        {
-          name      = "JWT_SECRET"
+         #valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:mongo-atlas-uri-prod-ltRwhe:MONGO_URI::" 
+       # },
+       # {
+         # name      = "JWT_SECRET"
           # ⚠️ REPLACE 'JWT_SECRET_ARN_HERE' with the ARN of your JWT secret
-          valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:app-jwt-secret-prod-e8JWoO:JWT_SECRET::"
-        }
-      ]
+         # valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:app-jwt-secret-prod-e8JWoO:JWT_SECRET::"
+       # }
+     # ]
+       "environment": [
+           {
+               "name": "MONGO_URI",
+               "value": "mongodb://shashank92:YOUR_PASSWORD@ac-9ioqwws-shard-00-02.z0dwony.mongodb.net:27017,ac-9ioqwws-shard-00-01.z0dwony.mongodb.net:27017,ac-9ioqwws-shard-00-00.z0dwony.mongodb.net:27017/?replicaSet=atlas-5v5bs4-shard-0&authSource=admin&retryWrites=true&w=majority"
+           },
+           {
+               "name": "JWT_SECRET",
+               "value": "e6c55b2c19eadd30345f985cde2af973bd8c2f01f1f15061acdaab2c77577e3ff4"
+           }
+       ],
     }
   ])
 }

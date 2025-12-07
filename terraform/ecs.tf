@@ -44,7 +44,7 @@ resource "aws_ecs_task_definition" "backend_task" {
         {
           name      = "JWT_SECRET"
           # ⚠️ REPLACE 'JWT_SECRET_ARN_HERE' with the ARN of your JWT secret
-          valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:app-jwt-secret-prod-e8JWoO" 
+          valueFrom = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:app-jwt-secret-prod-e8JWoO:JWT_SECRET"
         }
       ]
     }

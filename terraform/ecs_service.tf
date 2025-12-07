@@ -9,8 +9,8 @@ resource "aws_ecs_service" "frontend_service" {
   
   network_configuration {
     security_groups = [aws_security_group.backend_sg.id] # Use the backend SG for now (same network egress needs)
-    subnets         = aws_subnet.public[*].id
-    assign_public_ip = true
+    subnets         = aws_subnet.private[*].id
+    assign_public_ip = false
   }
   
   # Connect the service to the Application Load Balancer
@@ -36,8 +36,8 @@ resource "aws_ecs_service" "backend_service" {
   
   network_configuration {
     security_groups = [aws_security_group.backend_sg.id]
-    subnets         = aws_subnet.public[*].id
-    assign_public_ip = true
+    subnets         = aws_subnet.private[*].id
+    assign_public_ip = false
   }
 
   # NOTE: The backend service is not directly connected to the ALB in this setup. 

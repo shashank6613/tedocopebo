@@ -9,6 +9,7 @@ resource "aws_db_instance" "postgres_db" {
   engine               = "postgres"
   engine_version       = "17.4" # Use the latest stable version
   instance_class       = "db.t3.micro"
+  parameter_group_name = "newpara"
   db_name              = var.rds_db_name
   username             = var.rds_db_username
   password             = var.rds_db_password

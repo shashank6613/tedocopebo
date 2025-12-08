@@ -57,8 +57,8 @@ resource "aws_iam_role_policy" "ecs_execution_policy" {
         ]
         # 🚨 Resource must be updated to the ARN of your actual secret!
         Resource = [
-          "arn:aws:secretsmanager:us-west-2:799344209838:secret:mongo-atlas-uri-prod-ltRwhe",
-          "arn:aws:secretsmanager:us-west-2:799344209838:secret:app-jwt-secret-prod-e8JWoO"
+          aws_secretsmanager_secret.postgres_uri_secret.arn,
+          aws_secretsmanager_secret.jwt_secret.arn
         ]
       }
     ]
@@ -77,15 +77,35 @@ resource "aws_security_group" "backend_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
-  ingress {
-    from_port   = 53
-    to_port     = 53
-    protocol    = "udp"
-    cidr_blocks = ["10.0.0.2/32"] 
-  }
 
   tags = {
     Name = "${var.project_name}-Backend-SG"
+  }
+}
+
+# --- 4. NEW Security Group for RDS PostgreSQL Instance ---
+resource "aws_security_group" "rds_sg" {
+  vpc_id = aws_vpc.main.id
+  name   = "${var.project_name}-${var.environment}-rds-sg"
+
+  # INGRESS RULE: Allow traffic on PostgreSQL port (5432) 
+  # from the Security Group of the backend Fargate tasks only.
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.backend_sg.id] # Source is the backend tasks
+  }
+
+  # Egress can be default (all outbound traffic allowed) or restricted
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project_name}-RDS-SG"
   }
 }

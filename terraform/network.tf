@@ -94,3 +94,11 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
+
+# --- 11. RDS DB Subnet Group
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  subnet_ids = aws_subnet.private[*].id # Use your existing private subnets
+  tags = {
+    Name = "${var.project_name}-${var.environment}-RDS-Subnet-Group"
+  }
+}

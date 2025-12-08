@@ -9,6 +9,7 @@ vite.config.ts.timestamp-*
 terraform.tfstate.d/
 crash.log
 .terraform.lock.hcl
+*.tfvars
 logs
 *.log
 npm-debug.log*

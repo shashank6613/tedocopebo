@@ -59,7 +59,7 @@ jobs:
         IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.BACKEND_REPO_NAME }}:latest
 
         # Build the image using the full URI
-        docker build -t $IMAGE_URI ./server
+        docker build --no-cache -t $IMAGE_URI ./server
 
         # Push the image using the full URI
         docker push $IMAGE_URI
@@ -97,7 +97,7 @@ jobs:
         IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.FRONTEND_REPO_NAME }}:latest
 
         # Build the image using the full URI
-        docker build -t $IMAGE_URI ./client
+        docker build --no-cache -t $IMAGE_URI ./client
 
         # Push the image using the full URI
         docker push $IMAGE_URI

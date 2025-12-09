@@ -14,7 +14,7 @@ resource "random_string" "jwt_secret_value" {
 # --- 2. AWS Secrets Manager for JWT Secret ---
 # ------------------------------------------------------------------
 resource "aws_secretsmanager_secret" "jwt_secret" {
-  name        = "${var.project_name}-jwt-secret-${var.environment}"
+  name        = "${var.project_name}-jwt-secret-${var.environment}-v2"
   description = "Secure secret key for JWT signing."
 }
 
@@ -31,7 +31,7 @@ resource "aws_secretsmanager_secret_version" "jwt_secret_version" {
 # A. Create the new secret for the PostgreSQL connection URI
 # This uses the private RDS endpoint address, eliminating public IP issues.
 resource "aws_secretsmanager_secret" "postgres_uri_secret" {
-  name = "${var.project_name}-postgres-uri-${var.environment}"
+  name = "${var.project_name}-postgres-uri-${var.environment}-v2"
   description = "PostgreSQL connection URI for the backend service"
 }
 
